@@ -1,26 +1,43 @@
 @import "tailwindcss";
+@import "@fontsource-variable/sora";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #AA8F00; /* Color primario: Amarillo mostaza elegante */
+  --secondary: #F3FF9F; /* Color secundario: Verde claro suave */
+  --primary-light: #FFD600; /* Light primario: Amarillo brillante */
+  --black: #141414; /* Negro para texto o fondos oscuros */
+  --white: #FFFFFF; /* Blanco puro para fondos o texto */
+  --background: var(--white); /* Fondo por defecto */
+  --foreground: var(--black); /* Texto por defecto */
+  --font-sans: "Sora Variable", sans-serif; /* Fuente Sora con soporte para pesos 100-800 */
 }
 
 @theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-primary-light: var(--primary-light);
+  --color-black: var(--black);
+  --color-white: var(--white);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --primary: #FFD600; /* Amarillo brillante para modo oscuro */
+    --secondary: #D4E157; /* Verde más oscuro para contraste */
+    --primary-light: #FFEB3B; /* Amarillo más claro */
+    --black: #1C1C1C; /* Negro ligeramente más claro */
+    --white: #E0E0E0; /* Blanco ajustado para modo oscuro */
+    --background: var(--black);
+    --foreground: var(--white);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-variation-settings: "wght" 400; /* Peso por defecto: regular */
 }
