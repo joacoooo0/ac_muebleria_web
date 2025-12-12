@@ -32,7 +32,7 @@ const NavItem = ({
 export default function Navegation() {
   return (
     <nav className="flex justify-center items-center text-[#ffdb25]">
-      <ul className="flex justify-around gap-x-24 font-semibold">
+      <ul className="flex justify-around gap-x-24 font-medium">
         <NavItem href="/">Inicio</NavItem>
         <NavItem href="/proyectos">Proyectos</NavItem>
         <NavItem href="/catalogo">Catálogo</NavItem>
