@@ -35,9 +35,20 @@
   }
 }
 
+/* src/app/globals.css (asegúrate de que esté después de los imports) */
+
+html, body {
+  margin: 0; 
+  padding: 0; /* Añadimos padding 0 por si acaso */
+  height: 100%;
+  overflow-x: hidden;
+}
+
 body {
+  /* Estas propiedades están bien, pero asegúrate de que no sobrescriban el margin de html, body */
   background: var(--background);
   color: var(--foreground);
   font-family: "Sora";
-  font-variation-settings: "wght" 400; /* Peso por defecto: regular */
+  font-variation-settings: "wght" 400; 
 }
+

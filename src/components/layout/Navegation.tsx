@@ -1,43 +1,107 @@
-import React from "react";
-// Importar 'Link' de Next.js es una buena práctica, pero lo omitiremos por simplicidad aquí
-// import Link from 'next/link';
+// src/components/layout/Navegation.tsx
 
-// Componente para un solo elemento de navegación con el efecto de animación
+"use client";
+
+import React, { useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link"; // Cambiamos a Link para mejor rendimiento en Next.js
+import { Menu, X } from "lucide-react"; // Necesitarás instalar 'lucide-react' o usar SVGs
+
 const NavItem = ({
   href,
   children,
+  isActive,
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
+  isActive: boolean;
+  onClick?: () => void;
 }) => (
-  // 1. Contenedor principal para el enlace
-  // - 'relative' es crucial para que el 'span' de la línea (absolute) se posicione respecto a él.
-  // - 'group' permite aplicar estilos al span cuando se hace hover sobre el <li>
-  <li className="relative group">
-    <a href={href} className="py-2">
+  <li className="relative group list-none">
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`
+        py-2 px-4 rounded-md inline-block transform transition duration-300 ease-out 
+        ${
+          isActive
+            ? "rotate-3 text-white bg-[#ffdb25]/30 shadow-lg"
+            : "group-hover:rotate-3 group-hover:text-white"
+        }
+      `}
+    >
       {children}
-    </a>
-
-    {/* 2. El elemento que crea la línea (Underline animado) */}
+    </Link>
     <span
-      className="
-                absolute bottom-[-2px] left-0 h-[2px] rounded-2xl w-full 
-                bg-[#ffdb25] transform scale-x-0 
-                group-hover:scale-x-100 transition-transform duration-300 ease-out
-            "
+      className={`
+        absolute bottom-[-2px] left-0 h-[2px] rounded-2xl w-full 
+        bg-[#ffdb25] transform transition-transform duration-300 ease-out
+        ${isActive ? "scale-x-0" : "scale-x-0 group-hover:scale-x-100"}
+      `}
     ></span>
   </li>
 );
 
 export default function Navegation() {
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navLinks = [
+    { name: "Inicio", href: "/" },
+    { name: "Proyectos", href: "/proyectos" },
+    { name: "Catálogo", href: "/catalogo" },
+    { name: "Contáctanos", href: "/contactanos" },
+  ];
+
   return (
-    <nav className="flex justify-center items-center text-[#ffdb25]">
-      <ul className="flex justify-around gap-x-24 font-medium">
-        <NavItem href="/">Inicio</NavItem>
-        <NavItem href="/proyectos">Proyectos</NavItem>
-        <NavItem href="/catalogo">Catálogo</NavItem>
-        <NavItem href="/contactanos">Contáctanos</NavItem>
-      </ul>
-    </nav>
+    <>
+      {/* --- NAVBAR DESKTOP (Centrado) --- */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-auto max-w-max hidden md:block">
+        <div className="bg-black/20 backdrop-blur-md border border-white/10 px-8 py-3 rounded-full shadow-2xl">
+          <ul className="flex items-center gap-x-8 lg:gap-x-16 font-medium text-[#ffdb25]">
+            {navLinks.map((link) => (
+              <NavItem
+                key={link.href}
+                href={link.href}
+                isActive={pathname === link.href}
+              >
+                {link.name}
+              </NavItem>
+            ))}
+          </ul>
+        </div>
+      </nav>
+
+      {/* --- NAVBAR MOBILE (Botón Hamburguesa) --- */}
+      <div className="fixed top-6 right-6 z-50 md:hidden">
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="p-3 bg-[#ffdb25] text-black rounded-full shadow-lg active:scale-90 transition-transform"
+        >
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      {/* --- SLIDE MENU MOBILE --- */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transition-transform duration-500 md:hidden ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col items-center justify-center h-full gap-y-10 text-[#ffdb25]">
+          {navLinks.map((link) => (
+            <NavItem
+              key={link.href}
+              href={link.href}
+              isActive={pathname === link.href}
+              onClick={() => setIsMenuOpen(false)} // Cierra el menú al hacer click
+            >
+              <span className="text-3xl font-bold">{link.name}</span>
+            </NavItem>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
