@@ -1,107 +1,96 @@
-// src/components/layout/Navegation.tsx
-
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Link from "next/link"; // Cambiamos a Link para mejor rendimiento en Next.js
-import { Menu, X } from "lucide-react"; // Necesitarás instalar 'lucide-react' o usar SVGs
+import { motion } from "framer-motion";
 
-const NavItem = ({
-  href,
-  children,
-  isActive,
-  onClick,
-}: {
-  href: string;
-  children: React.ReactNode;
-  isActive: boolean;
-  onClick?: () => void;
-}) => (
-  <li className="relative group list-none">
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`
-        py-2 px-4 rounded-md inline-block transform transition duration-300 ease-out 
-        ${
-          isActive
-            ? "rotate-3 text-white bg-[#ffdb25]/30 shadow-lg"
-            : "group-hover:rotate-3 group-hover:text-white"
-        }
-      `}
-    >
-      {children}
-    </Link>
-    <span
-      className={`
-        absolute bottom-[-2px] left-0 h-[2px] rounded-2xl w-full 
-        bg-[#ffdb25] transform transition-transform duration-300 ease-out
-        ${isActive ? "scale-x-0" : "scale-x-0 group-hover:scale-x-100"}
-      `}
-    ></span>
-  </li>
-);
+const navLinks = [
+  { name: "Inicio", href: "/" },
+  { name: "Proyectos", href: "/proyectos" },
+  { name: "Catálogo", href: "/catalogo" },
+  { name: "Contáctanos", href: "/contactanos" },
+];
 
 export default function Navegation() {
   const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, height: 0 });
 
-  const navLinks = [
-    { name: "Inicio", href: "/" },
-    { name: "Proyectos", href: "/proyectos" },
-    { name: "Catálogo", href: "/catalogo" },
-    { name: "Contáctanos", href: "/contactanos" },
-  ];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Buscamos el índice del link activo
+    const activeIndex = navLinks.findIndex(
+      (link) =>
+        pathname === link.href ||
+        (pathname.startsWith(link.href) && link.href !== "/")
+    );
+
+    const activeElement = linksRef.current[activeIndex];
+
+    if (activeElement && containerRef.current) {
+      const { offsetLeft, offsetWidth, offsetHeight } = activeElement;
+      setPillStyle({
+        left: offsetLeft,
+        width: offsetWidth,
+        height: offsetHeight,
+      });
+    }
+  }, [pathname, mounted]);
 
   return (
-    <>
-      {/* --- NAVBAR DESKTOP (Centrado) --- */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-auto max-w-max hidden md:block">
-        <div className="bg-black/20 backdrop-blur-md border border-white/10 px-8 py-3 rounded-full shadow-2xl">
-          <ul className="flex items-center gap-x-8 lg:gap-x-16 font-medium text-[#ffdb25]">
-            {navLinks.map((link) => (
-              <NavItem
-                key={link.href}
-                href={link.href}
-                isActive={pathname === link.href}
-              >
-                {link.name}
-              </NavItem>
-            ))}
-          </ul>
-        </div>
-      </nav>
-
-      {/* --- NAVBAR MOBILE (Botón Hamburguesa) --- */}
-      <div className="fixed top-6 right-6 z-50 md:hidden">
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-3 bg-[#ffdb25] text-black rounded-full shadow-lg active:scale-90 transition-transform"
-        >
-          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
-
-      {/* --- SLIDE MENU MOBILE --- */}
+    <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-50 isolate">
       <div
-        className={`fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transition-transform duration-500 md:hidden ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        ref={containerRef}
+        className="relative flex items-center gap-1 bg-black/70  border border-white/10 p-1.5 rounded-full overflow-hidden"
       >
-        <div className="flex flex-col items-center justify-center h-full gap-y-10 text-[#ffdb25]">
-          {navLinks.map((link) => (
-            <NavItem
+        {/* LA CÁPSULA ÚNICA: Sin layoutId para evitar el glitch del scroll */}
+        {mounted && pillStyle.width > 0 && (
+          <motion.div
+            className="absolute bg-[#FFDB25] rounded-full z-0"
+            style={{ boxShadow: "none" }}
+            initial={false}
+            animate={{
+              left: pillStyle.left,
+              width: pillStyle.width,
+              height: pillStyle.height,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 35,
+            }}
+          />
+        )}
+
+        {navLinks.map((link, index) => {
+          const isActive =
+            pathname === link.href ||
+            (pathname.startsWith(link.href) && link.href !== "/");
+
+          return (
+            <Link
               key={link.href}
               href={link.href}
-              isActive={pathname === link.href}
-              onClick={() => setIsMenuOpen(false)} // Cierra el menú al hacer click
+              ref={(el) => {
+                linksRef.current[index] = el;
+              }}
+              // Aumentamos px-8 y py-3.5 para un botón más grande y cómodo
+              className={`relative px-8 py-3.5 rounded-full text-base font-semibold transition-colors duration-300 z-10 outline-none ${
+                isActive ? "text-black" : "text-white/80 hover:text-white"
+              }`}
             >
-              <span className="text-3xl font-bold">{link.name}</span>
-            </NavItem>
-          ))}
-        </div>
+              {link.name}
+            </Link>
+          );
+        })}
       </div>
-    </>
+    </nav>
   );
 }
